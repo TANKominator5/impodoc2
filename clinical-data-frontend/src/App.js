@@ -5,15 +5,11 @@ import AppRoutes from "./routes";
 import Navbar from "./components/Navbar";
 import "./App.css";
 
-import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
-import { PetraWallet } from "petra-plugin-wallet-adapter";
-
-const wallets = [new PetraWallet()];
+// ❌ We REMOVED the AptosWalletAdapterProvider from here. It's already in index.js.
 
 function App() {
   const location = useLocation();
 
-  // ✅ Check if current path starts with "/dashboard"
   const isDashboard = location.pathname.startsWith("/dashboard");
 
   useEffect(() => {
@@ -30,13 +26,10 @@ function App() {
   }, []);
 
   return (
-    <AptosWalletAdapterProvider plugins={wallets} autoConnect={false}>
-      <div className="app-wrapper">
-        {/* ✅ Only show Navbar on public routes */}
-        {!isDashboard && <Navbar />}
-        <AppRoutes />
-      </div>
-    </AptosWalletAdapterProvider>
+    <div className="app-wrapper">
+      {!isDashboard && <Navbar />}
+      <AppRoutes />
+    </div>
   );
 }
 
