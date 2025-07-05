@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import WalletModal from "./WalletModal";
@@ -23,29 +22,30 @@ const Navbar = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "1.1rem 2.5rem",
+          padding: "1.1rem 2rem",
           fontFamily: "Inter, Segoe UI, Arial, sans-serif",
+          boxSizing: "border-box", // ✅ Important
+          overflowX: "hidden"      // ✅ Prevent overflow issues
         }}
+        
       >
         <Link
           to="/login"
           className="logo"
           style={{
-            fontWeight: 900,
-            fontSize: "1.7rem",
-            letterSpacing: "0.06em",
-            color: "#4f46e5",
-            fontFamily: "Poppins, Inter, sans-serif",
-            textDecoration: "none",
             display: "flex",
             alignItems: "center",
-            gap: "0.3em",
-            userSelect: "none",
+            gap: "1.2rem",   // was 1.7rem — decreased
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
           }}
+          
         >
           <span style={{ letterSpacing: "0.13em" }}>IMPO</span>
           <span style={{ color: "#0ea5e9" }}>DOC</span>
         </Link>
+
         <ul
           className="nav-links"
           style={{
@@ -55,6 +55,8 @@ const Navbar = () => {
             listStyle: "none",
             margin: 0,
             padding: 0,
+            flexWrap: "wrap",
+            overflow: "visible",
           }}
         >
           <li>
@@ -85,6 +87,7 @@ const Navbar = () => {
                 border: "none",
                 borderRadius: "8px",
                 padding: "0.45em 1.3em",
+                minWidth: "110px",
                 cursor: "pointer",
                 boxShadow: "0 2px 8px 0 rgba(80,80,120,0.07)",
                 transition: "background 0.18s, box-shadow 0.18s, transform 0.13s",
@@ -92,17 +95,17 @@ const Navbar = () => {
                 letterSpacing: "0.03em",
               }}
               className="signup-btn"
-              onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
-              onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-              onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
               Sign Up
             </button>
           </li>
         </ul>
       </nav>
+
       {showModal && <WalletModal onClose={() => setShowModal(false)} />}
-      {/* Spacer for fixed navbar */}
       <div style={{ height: "4.5rem" }} />
     </>
   );
