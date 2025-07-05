@@ -2,29 +2,37 @@
 import React, { useEffect } from 'react';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function WalletConnect({ onConnectSuccess }) {
   // 🔴 Let's see what the useWallet hook is giving us.
   const { connect, account, connected, disconnect, wallet, wallets } = useWallet();
+  const { handleUserConnect, isFirstTimeUser } = useAuth();
+  const navigate = useNavigate();
+
   console.log('🔴 WalletConnect: Hook state', { 
     connected, 
     account: account?.address, 
     wallet: wallet?.name,
-    availableWallets: wallets.map(w => w.name) 
+    availableWallets: wallets.map(w => w.name),
+    isFirstTimeUser
   });
-
-  const { handleUserConnect } = useAuth();
 
   useEffect(() => {
     if (connected && account) {
       console.log("✅ Wallet connected, calling handleUserConnect in context...");
       handleUserConnect(account);
-      if (onConnectSuccess) {
+      
+      // Check if this is a first-time user and redirect accordingly
+      if (isFirstTimeUser) {
+        console.log("✅ First-time user detected, redirecting to My Account...");
+        navigate("/my-account");
+      } else if (onConnectSuccess) {
         console.log("✅ Calling onConnectSuccess callback...");
         onConnectSuccess();
       }
     }
-  }, [connected, account, handleUserConnect, onConnectSuccess]);
+  }, [connected, account, handleUserConnect, onConnectSuccess, isFirstTimeUser, navigate]);
 
   const handleConnect = async () => {
     console.log("🔵 handleConnect function triggered!"); // Did we get this far?
