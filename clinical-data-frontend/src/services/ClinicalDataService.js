@@ -1,6 +1,8 @@
-import { Aptos, Ed25519Account, Ed25519PrivateKey } from "@aptos-labs/ts-sdk";
+import { Aptos } from "@aptos-labs/ts-sdk";
+import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 
-// Initialize Aptos client for testnet
+// Initialize Aptos client
 const aptos = new Aptos({
   network: "testnet"
 });
@@ -8,120 +10,7 @@ const aptos = new Aptos({
 // Contract address from your Move contract
 const CONTRACT_ADDRESS = "0x7fbf95bb2c9bfd7b7e0e322c7a37ed7ed62e3ff525741be5262d86d2d4469341";
 
-// Your wallet address (the source of APT tokens)
-const SOURCE_WALLET_ADDRESS = "0x7fbf95bb2c9bfd7b7e0e322c7a37ed7ed62e3ff525741be5262d86d2d4469341";
-
-// Reward amounts in APT (1 APT = 100,000,000 octas)
-const PATIENT_REWARD = 0.1 * 100000000; // 0.1 APT in octas
-const PROFESSIONAL_REWARD = 0.2 * 100000000; // 0.2 APT in octas
-
-export class RewardSystem {
-  constructor() {
-    this.aptos = aptos;
-    this.contractAddress = CONTRACT_ADDRESS;
-  }
-
-  // Transfer APT tokens to a recipient
-  async transferAPT(recipientAddress, amount, privateKey) {
-    try {
-      // Create account from private key
-      const privateKeyObj = new Ed25519PrivateKey(privateKey);
-      const account = new Ed25519Account(privateKeyObj);
-      
-      // Create and submit transaction using the simplified API
-      const transaction = await this.aptos.build.transaction({
-        sender: account.accountAddress,
-        data: {
-          function: "0x1::coin::transfer",
-          type_arguments: ["0x1::aptos_coin::AptosCoin"],
-          arguments: [recipientAddress, amount.toString()]
-        }
-      });
-
-      // Sign and submit transaction
-      const signedTxn = await this.aptos.sign.transaction({
-        signer: account,
-        transaction: transaction
-      });
-      
-      const transactionRes = await this.aptos.submit.transaction({
-        transaction: signedTxn
-      });
-      
-      // Wait for transaction to be confirmed
-      await this.aptos.waitForTransaction({
-        transactionHash: transactionRes.hash
-      });
-
-      return {
-        success: true,
-        hash: transactionRes.hash,
-        amount: amount / 100000000, // Convert back to APT
-        recipient: recipientAddress
-      };
-
-    } catch (error) {
-      console.error("Error transferring APT:", error);
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-  }
-
-  // Reward patient for verified prescription
-  async rewardPatient(patientAddress, privateKey) {
-    return await this.transferAPT(patientAddress, PATIENT_REWARD, privateKey);
-  }
-
-  // Reward medical professional for research contribution
-  async rewardProfessional(professionalAddress, privateKey) {
-    return await this.transferAPT(professionalAddress, PROFESSIONAL_REWARD, privateKey);
-  }
-
-  // Get account balance
-  async getBalance(address) {
-    try {
-      const resources = await this.aptos.getAccountResources({
-        accountAddress: address
-      });
-      
-      const aptosCoin = resources.find((r) => r.type === "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>");
-      
-      if (aptosCoin) {
-        return parseFloat(aptosCoin.data.coin.value) / 100000000; // Convert to APT
-      }
-      return 0;
-    } catch (error) {
-      console.error("Error getting balance:", error);
-      return 0;
-    }
-  }
-
-  // Check if transaction was successful
-  async checkTransactionStatus(hash) {
-    try {
-      const transaction = await this.aptos.getTransactionByHash({
-        transactionHash: hash
-      });
-      return transaction.success;
-    } catch (error) {
-      console.error("Error checking transaction status:", error);
-      return false;
-    }
-  }
-}
-
-// Export constants for use in components
-export const REWARD_AMOUNTS = {
-  PATIENT: 0.1,
-  PROFESSIONAL: 0.2
-};
-
-export const SOURCE_ADDRESS = SOURCE_WALLET_ADDRESS;
-
-// Clinical Data Sharing Functions
-export class ClinicalDataContract {
+export class ClinicalDataService {
   constructor() {
     this.aptos = aptos;
     this.contractAddress = CONTRACT_ADDRESS;
@@ -194,6 +83,9 @@ export class ClinicalDataContract {
         transactionHash: transactionRes.hash
       });
 
+      // Also store in Firebase for frontend access
+      await this.storePatientInFirebase(patientAddress, dataHash);
+
       return {
         success: true,
         hash: transactionRes.hash,
@@ -236,6 +128,9 @@ export class ClinicalDataContract {
         transactionHash: transactionRes.hash
       });
 
+      // Log the access grant
+      await this.logAccessEvent(userSigner.accountAddress, userSigner.accountAddress, "grant_access", institutionAddress);
+
       return {
         success: true,
         hash: transactionRes.hash,
@@ -277,6 +172,9 @@ export class ClinicalDataContract {
         transactionHash: transactionRes.hash
       });
 
+      // Log the access revocation
+      await this.logAccessEvent(userSigner.accountAddress, userSigner.accountAddress, "revoke_access", institutionAddress);
+
       return {
         success: true,
         hash: transactionRes.hash,
@@ -317,6 +215,9 @@ export class ClinicalDataContract {
       await this.aptos.waitForTransaction({
         transactionHash: transactionRes.hash
       });
+
+      // Also store in Firebase for easier querying
+      await this.logAccessEvent(userSigner.accountAddress, patientAddress, action);
 
       return {
         success: true,
@@ -401,4 +302,120 @@ export class ClinicalDataContract {
       };
     }
   }
+
+  // Firebase helper methods for frontend integration
+
+  async storePatientInFirebase(patientAddress, dataHash) {
+    try {
+      const patientRef = doc(db, 'patients', patientAddress);
+      await setDoc(patientRef, {
+        address: patientAddress,
+        dataHash: dataHash,
+        consentedInstitutions: [],
+        createdAt: serverTimestamp(),
+        lastUpdated: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error storing patient in Firebase:", error);
+    }
+  }
+
+  async logAccessEvent(accessorAddress, patientAddress, action, institutionAddress = null) {
+    try {
+      const logRef = doc(collection(db, 'accessLogs'));
+      await setDoc(logRef, {
+        accessor: accessorAddress,
+        patient: patientAddress,
+        action: action,
+        institution: institutionAddress,
+        timestamp: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error logging access event:", error);
+    }
+  }
+
+  // Get patient data from Firebase
+  async getPatientData(patientAddress) {
+    try {
+      const patientRef = doc(db, 'patients', patientAddress);
+      const patientDoc = await getDoc(patientRef);
+      
+      if (patientDoc.exists()) {
+        return {
+          success: true,
+          data: patientDoc.data()
+        };
+      } else {
+        return {
+          success: false,
+          error: "Patient not found"
+        };
+      }
+    } catch (error) {
+      console.error("Error getting patient data:", error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // Get access logs for a patient
+  async getAccessLogs(patientAddress) {
+    try {
+      const logsRef = collection(db, 'accessLogs');
+      const q = query(logsRef, where('patient', '==', patientAddress));
+      const querySnapshot = await getDocs(q);
+
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error("Error getting access logs:", error);
+      return [];
+    }
+  }
+
+  // Get all patients
+  async getAllPatients() {
+    try {
+      const patientsRef = collection(db, 'patients');
+      const querySnapshot = await getDocs(patientsRef);
+
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error("Error getting all patients:", error);
+      return [];
+    }
+  }
+
+  // Update patient consent
+  async updatePatientConsent(patientAddress, consentedInstitutions) {
+    try {
+      const patientRef = doc(db, 'patients', patientAddress);
+      await updateDoc(patientRef, {
+        consentedInstitutions: consentedInstitutions,
+        lastUpdated: serverTimestamp()
+      });
+
+      return {
+        success: true,
+        patientAddress,
+        consentedInstitutions
+      };
+    } catch (error) {
+      console.error("Error updating patient consent:", error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
+
+export default ClinicalDataService; 
