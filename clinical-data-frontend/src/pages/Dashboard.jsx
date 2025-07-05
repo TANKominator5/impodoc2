@@ -1,6 +1,7 @@
 // src/pages/Dashboard.jsx
 import React, { useState, useEffect } from "react";
 import PrivateNavbar from "../components/PrivateNavbar";
+import RewardInfo from "../components/RewardInfo";
 import "./Dashboard.css";
 import defaultPfp from "../assets/default-pfp.png";
 import { useAuth } from "../context/AuthContext";
@@ -93,23 +94,22 @@ export default function Dashboard() {
 
   if (loading || fetching) {
     return (
-      <div className="dashboard-wrapper" style={{ padding: "2rem", textAlign: "center" }}>
-        <div className="loader" style={{ margin: "3rem auto" }}>
-          <div className="spinner" style={{
-            width: 48, height: 48, border: "6px solid #38bdf8", borderTop: "6px solid #1e293b", borderRadius: "50%", animation: "spin 1s linear infinite"
-          }} />
+      <div className="dashboard-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <h2>Loading your Dashboard...</h2>
         </div>
-        <div style={{ color: "#38bdf8", fontWeight: 600, fontSize: "1.2rem" }}>Loading your Dashboard...</div>
       </div>
     );
   }
 
   if (!connected && !currentUser) {
     return (
-      <div className="dashboard-wrapper" style={{ padding: "2rem", textAlign: "center" }}>
-        <div style={{ ...gradientCard, maxWidth: 420, margin: "3rem auto" }}>
-          <h1 style={{ color: "#f43f5e", fontWeight: 800, fontSize: "2rem" }}>Access Denied</h1>
-          <p style={{ color: "#f1f5f9", marginTop: 16 }}>Please connect your wallet to view the dashboard.</p>
+      <div className="dashboard-container">
+        <div className="access-denied">
+          <div className="access-denied-icon">🔒</div>
+          <h1>Access Denied</h1>
+          <p>Please connect your wallet to view the dashboard.</p>
         </div>
       </div>
     );
@@ -168,7 +168,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-wrapper" style={{ background: "linear-gradient(120deg, #0f172a 60%, #0ea5e9 100%)", minHeight: "100vh" }}>
+    <div className="dashboard-container">
       <PrivateNavbar onMenuClick={() => setMenuOpen(true)} menuOpen={menuOpen} />
 
       {/* Sidebar */}
@@ -177,291 +177,404 @@ export default function Dashboard() {
           ×
         </button>
         <ul>
-          <li>
-            <button className="menu-btn">Profile</button>
-          </li>
-          <li>
-            <button className="menu-btn">Cases</button>
-          </li>
-          <li>
-            <button className="menu-btn">Contributions</button>
-          </li>
-          <li>
-            <button className="menu-btn">Contact Us</button>
-          </li>
+          <li><button className="menu-btn">Profile</button></li>
+          <li><button className="menu-btn">Cases</button></li>
+          <li><button className="menu-btn">Contributions</button></li>
+          <li><button className="menu-btn">Contact Us</button></li>
         </ul>
       </div>
 
-      {/* Profile Section */}
-      <div
-        className="profile-section"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "2.5rem",
-          marginTop: "2.5rem",
-          maxWidth: 900,
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <div className="profile-pfp" style={{
-          boxShadow: "0 4px 24px 0 rgba(14,165,233,0.15)",
-          borderRadius: "50%",
-          background: "linear-gradient(135deg, #0ea5e9 60%, #1e293b 100%)",
-          padding: 6,
-        }}>
-          <img
-            src={user.photoURL || defaultPfp}
-            alt="User"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "4px solid #38bdf8",
-              background: "#fff",
-            }}
-          />
-        </div>
-        <div className="profile-info" style={{ flex: 1 }}>
-          <h2 style={{ margin: 0, fontWeight: 800, fontSize: "2.1rem", color: "#f1f5f9" }}>
-            {user.name || "Full Name"}
-          </h2>
-          <div style={{ fontWeight: 600, color: "#38bdf8", marginBottom: 6, fontSize: "1.1rem" }}>
-            {role}
+      {/* Main Content */}
+      <div className="dashboard-main">
+        {/* Profile Header */}
+        <div className="profile-header">
+          <div className="profile-avatar">
+            <img
+              src={user.photoURL || defaultPfp}
+              alt="User"
+              className="avatar-image"
+            />
             {isDoctor && doctorInfo.verified && (
-              <span style={{ marginLeft: 10, color: "#22c55e", fontWeight: 700, fontSize: "1.1rem" }}>✔ Verified</span>
+              <div className="verified-badge">✓</div>
             )}
           </div>
-          <div style={{ color: "#cbd5e1", marginBottom: 10, fontSize: "1.05rem" }}>
-            {user.bio || "Bio/Short Description"}
-          </div>
-          <div style={{ color: "#94a3b8", fontSize: "1.01rem", marginBottom: 4 }}>
-            <span role="img" aria-label="location">📍</span>{" "}
-            {user.location || "City, Country"}
-          </div>
-          <div style={{ marginTop: 4, fontSize: "1.01rem", color: "#94a3b8" }}>
-            <span role="img" aria-label="email">📧</span>{" "}
-            {user.email || <span style={{ color: "#64748b" }}>Email not provided</span>}
-            {user.phone && (
-              <>
-                {" "}
-                | <span role="img" aria-label="phone">📞</span> {user.phone}
-              </>
-            )}
-          </div>
-          <div style={{ marginTop: 4, fontSize: "1.01rem", color: "#94a3b8" }}>
-            <span role="img" aria-label="wallet">🦊</span>{" "}
-            {user.address ? <strong style={{ color: "#fbbf24" }}>{truncateHex(user.address)}</strong> : "No wallet connected"}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Dashboard Content */}
-      <div className="dashboard-content" style={{ marginTop: "2.5rem", maxWidth: 900, marginLeft: "auto", marginRight: "auto" }}>
-        {/* Basic Information */}
-        <div style={gradientCard}>
-          <div style={sectionTitle}>Basic Information</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "2.5rem" }}>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, flex: 1 }}>
-              <li><span style={infoLabel}>Full Name:</span> {user.name || "N/A"}</li>
-              <li><span style={infoLabel}>Role:</span> {role}</li>
-              <li><span style={infoLabel}>Bio:</span> {user.bio || "N/A"}</li>
-              <li><span style={infoLabel}>Location:</span> {user.location || "N/A"}</li>
-              <li><span style={infoLabel}>Email:</span> {user.email || "N/A"}</li>
-              <li><span style={infoLabel}>Phone:</span> {user.phone || "Private"}</li>
-            </ul>
+          <div className="profile-info">
+            <h1 className="profile-name">{user.name || "Full Name"}</h1>
+            <div className="profile-role">
+              <span className="role-badge">{role}</span>
+              {isDoctor && doctorInfo.verified && (
+                <span className="verified-text">Verified</span>
+              )}
+            </div>
+            <p className="profile-bio">{user.bio || "Bio/Short Description"}</p>
+            <div className="profile-details">
+              <div className="detail-item">
+                <span className="detail-icon">📍</span>
+                <span>{user.location || "City, Country"}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-icon">📧</span>
+                <span>{user.email || "Email not provided"}</span>
+              </div>
+              {user.phone && (
+                <div className="detail-item">
+                  <span className="detail-icon">📞</span>
+                  <span>{user.phone}</span>
+                </div>
+              )}
+              <div className="detail-item">
+                <span className="detail-icon">🦊</span>
+                <span className="wallet-address">
+                  {user.address ? truncateHex(user.address) : "No wallet connected"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Doctor Section */}
-        {isDoctor && (
-          <div style={gradientCard}>
-            <div style={sectionTitle}>Doctor Information</div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li><span style={infoLabel}>Specialization:</span> {doctorInfo.specialization}</li>
-              <li>
-                <span style={infoLabel}>Medical License #:</span>
-                <span style={{ color: "#fbbf24" }}>{doctorInfo.licenseNumber}</span>
-                {doctorInfo.verified && (
-                  <span style={{ color: "#22c55e", fontWeight: 700, marginLeft: 10 }}>✔ Verified</span>
+        {/* Role-based Actions */}
+        <div className="role-actions">
+          {role === "Patient" && (
+            <div className="action-card">
+              <div className="action-icon">📤</div>
+              <div className="action-content">
+                <h3>Upload Patient Data</h3>
+                <p>Share your medical information for research and analysis</p>
+                <button 
+                  className="action-btn"
+                  onClick={() => navigate("/upload-patient-data")}
+                >
+                  Upload Data
+                </button>
+              </div>
+            </div>
+          )}
+
+          {(role === "Doctor" || role === "Researcher") && (
+            <>
+              {user.verificationStatus !== "approved" ? (
+                <div className="action-card">
+                  <div className="action-icon">🔐</div>
+                  <div className="action-content">
+                    <h3>Verification Required</h3>
+                    <p>Submit your credentials to access patient data</p>
+                    <button 
+                      className="action-btn"
+                      onClick={() => navigate("/verification")}
+                    >
+                      Submit Verification
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="action-card">
+                    <div className="action-icon">👥</div>
+                    <div className="action-content">
+                      <h3>View Patient Data</h3>
+                      <p>Access and analyze patient cases for research</p>
+                      <button 
+                        className="action-btn"
+                        onClick={() => navigate("/patient-data")}
+                      >
+                        View Data
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="action-card">
+                    <div className="action-icon">🔬</div>
+                    <div className="action-content">
+                      <h3>Submit Research</h3>
+                      <p>Share your research findings and earn 0.2 APT</p>
+                      <button 
+                        className="action-btn"
+                        onClick={() => navigate("/research-submission")}
+                      >
+                        Submit Research
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Reward Information */}
+        <RewardInfo />
+
+        {/* Dashboard Grid */}
+        <div className="dashboard-grid">
+          {/* Basic Information Card */}
+          <div className="dashboard-card">
+            <div className="card-header">
+              <h3>Basic Information</h3>
+            </div>
+            <div className="card-content">
+              <div className="info-grid">
+                <div className="info-item">
+                  <label>Full Name</label>
+                  <span>{user.name || "N/A"}</span>
+                </div>
+                <div className="info-item">
+                  <label>Role</label>
+                  <span>{role}</span>
+                </div>
+                <div className="info-item">
+                  <label>Bio</label>
+                  <span>{user.bio || "N/A"}</span>
+                </div>
+                <div className="info-item">
+                  <label>Location</label>
+                  <span>{user.location || "N/A"}</span>
+                </div>
+                <div className="info-item">
+                  <label>Email</label>
+                  <span>{user.email || "N/A"}</span>
+                </div>
+                <div className="info-item">
+                  <label>Phone</label>
+                  <span>{user.phone || "Private"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Doctor Information Card */}
+          {isDoctor && (
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Doctor Information</h3>
+              </div>
+              <div className="card-content">
+                <div className="info-grid">
+                  <div className="info-item">
+                    <label>Specialization</label>
+                    <span>{doctorInfo.specialization}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Medical License</label>
+                    <span className="license-number">{doctorInfo.licenseNumber}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Years of Experience</label>
+                    <span>{doctorInfo.yearsExperience}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Affiliation</label>
+                    <span>{doctorInfo.affiliation}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Languages</label>
+                    <span>{doctorInfo.languages.join(", ")}</span>
+                  </div>
+                  {(doctorInfo.linkedin || doctorInfo.website) && (
+                    <div className="info-item">
+                      <label>Links</label>
+                      <div className="link-buttons">
+                        {doctorInfo.linkedin && (
+                          <a href={doctorInfo.linkedin} target="_blank" rel="noopener noreferrer" className="link-btn">
+                            LinkedIn
+                          </a>
+                        )}
+                        {doctorInfo.website && (
+                          <a href={doctorInfo.website} target="_blank" rel="noopener noreferrer" className="link-btn">
+                            Website
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {doctorInfo.publications.length > 0 && (
+                  <div className="section-divider">
+                    <h4>Publications</h4>
+                    <ul className="publication-list">
+                      {doctorInfo.publications.map((pub, idx) => (
+                        <li key={idx}>{pub}</li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-              </li>
-              <li><span style={infoLabel}>Years of Experience:</span> {doctorInfo.yearsExperience}</li>
-              <li><span style={infoLabel}>Affiliation:</span> {doctorInfo.affiliation}</li>
-              <li><span style={infoLabel}>Languages:</span> {doctorInfo.languages.join(", ")}</li>
-              {doctorInfo.publications.length > 0 && (
-                <li>
-                  <span style={infoLabel}>Publications:</span>
-                  <ul style={{ marginTop: 4, marginLeft: 12 }}>
-                    {doctorInfo.publications.map((pub, idx) => (
-                      <li key={idx} style={{ color: "#bae6fd" }}>{pub}</li>
-                    ))}
-                  </ul>
-                </li>
-              )}
-              {(doctorInfo.linkedin || doctorInfo.website) && (
-                <li>
-                  <span style={infoLabel}>Links:</span>
-                  {doctorInfo.linkedin && (
-                    <a href={doctorInfo.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: "#60a5fa", fontWeight: 600 }}>
-                      LinkedIn
-                    </a>
-                  )}
-                  {doctorInfo.website && (
-                    <>
-                      {" | "}
-                      <a href={doctorInfo.website} target="_blank" rel="noopener noreferrer" style={{ color: "#60a5fa", fontWeight: 600 }}>
-                        Website
-                      </a>
-                    </>
-                  )}
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+              </div>
+            </div>
+          )}
 
-        {/* Researcher Section */}
-        {isResearcher && (
-          <div style={gradientCard}>
-            <div style={sectionTitle}>Researcher Information</div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li><span style={infoLabel}>Field of Research:</span> {researcherInfo.field}</li>
-              <li><span style={infoLabel}>Institution:</span> {researcherInfo.institution}</li>
-              <li><span style={infoLabel}>ORCID:</span> {researcherInfo.orcid}</li>
-              {researcherInfo.scopus && (
-                <li><span style={infoLabel}>Scopus ID:</span> {researcherInfo.scopus}</li>
-              )}
-              {researcherInfo.researchgate && (
-                <li><span style={infoLabel}>ResearchGate:</span> {researcherInfo.researchgate}</li>
-              )}
-              <li><span style={infoLabel}>Current Research Focus:</span> {researcherInfo.researchFocus}</li>
-              {researcherInfo.papers.length > 0 && (
-                <li>
-                  <span style={infoLabel}>Published Papers/Projects:</span>
-                  <ul style={{ marginTop: 4, marginLeft: 12 }}>
-                    {researcherInfo.papers.map((paper, idx) => (
-                      <li key={idx} style={{ color: "#bae6fd" }}>{paper}</li>
-                    ))}
-                  </ul>
-                </li>
-              )}
-              {researcherInfo.conferences.length > 0 && (
-                <li>
-                  <span style={infoLabel}>Conferences Attended/Presented:</span>
-                  <ul style={{ marginTop: 4, marginLeft: 12 }}>
-                    {researcherInfo.conferences.map((conf, idx) => (
-                      <li key={idx} style={{ color: "#bae6fd" }}>{conf}</li>
-                    ))}
-                  </ul>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+          {/* Researcher Information Card */}
+          {isResearcher && (
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Researcher Information</h3>
+              </div>
+              <div className="card-content">
+                <div className="info-grid">
+                  <div className="info-item">
+                    <label>Field of Research</label>
+                    <span>{researcherInfo.field}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Institution</label>
+                    <span>{researcherInfo.institution}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>ORCID</label>
+                    <span className="orcid-id">{researcherInfo.orcid}</span>
+                  </div>
+                  {researcherInfo.scopus && (
+                    <div className="info-item">
+                      <label>Scopus ID</label>
+                      <span>{researcherInfo.scopus}</span>
+                    </div>
+                  )}
+                  {researcherInfo.researchgate && (
+                    <div className="info-item">
+                      <label>ResearchGate</label>
+                      <span>{researcherInfo.researchgate}</span>
+                    </div>
+                  )}
+                  <div className="info-item">
+                    <label>Research Focus</label>
+                    <span>{researcherInfo.researchFocus}</span>
+                  </div>
+                </div>
+                {researcherInfo.papers.length > 0 && (
+                  <div className="section-divider">
+                    <h4>Published Papers</h4>
+                    <ul className="publication-list">
+                      {researcherInfo.papers.map((paper, idx) => (
+                        <li key={idx}>{paper}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {researcherInfo.conferences.length > 0 && (
+                  <div className="section-divider">
+                    <h4>Conferences</h4>
+                    <ul className="publication-list">
+                      {researcherInfo.conferences.map((conf, idx) => (
+                        <li key={idx}>{conf}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-        {/* Explorer Section */}
-        {isExplorer && (
-          <div style={gradientCard}>
-            <div style={sectionTitle}>Explorer Information</div>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li><span style={infoLabel}>Interests:</span> {explorerInfo.interests.join(", ")}</li>
-              <li><span style={infoLabel}>Age Range:</span> {explorerInfo.ageRange}</li>
-              <li><span style={infoLabel}>Preferred Language:</span> {explorerInfo.preferredLanguage}</li>
-              <li><span style={infoLabel}>Activity Level:</span> {explorerInfo.activityLevel}</li>
-              <li>
-                <span style={infoLabel}>Bookmarked Articles/Cases:</span>
-                {explorerInfo.bookmarks.length > 0
-                  ? explorerInfo.bookmarks.map((b, idx) => (
-                      <span key={idx} style={{ color: "#bae6fd" }}>
-                        {b}
-                        {idx < explorerInfo.bookmarks.length - 1 ? ", " : ""}
-                      </span>
+          {/* Explorer Information Card */}
+          {isExplorer && (
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>Explorer Information</h3>
+              </div>
+              <div className="card-content">
+                <div className="info-grid">
+                  <div className="info-item">
+                    <label>Interests</label>
+                    <div className="tag-list">
+                      {explorerInfo.interests.map((interest, idx) => (
+                        <span key={idx} className="tag">{interest}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="info-item">
+                    <label>Age Range</label>
+                    <span>{explorerInfo.ageRange}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Preferred Language</label>
+                    <span>{explorerInfo.preferredLanguage}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Activity Level</label>
+                    <span>{explorerInfo.activityLevel}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Subscribed Topics</label>
+                    <div className="tag-list">
+                      {explorerInfo.subscribedTopics.map((topic, idx) => (
+                        <span key={idx} className="tag">{topic}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {explorerInfo.bookmarks.length > 0 && (
+                  <div className="section-divider">
+                    <h4>Bookmarked Articles</h4>
+                    <ul className="publication-list">
+                      {explorerInfo.bookmarks.map((bookmark, idx) => (
+                        <li key={idx}>{bookmark}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Contributions & Activity Card */}
+          <div className="dashboard-card">
+            <div className="card-header">
+              <h3>Contributions & Activity</h3>
+            </div>
+            <div className="card-content">
+              <div className="activity-grid">
+                <div className="activity-item">
+                  <div className="activity-icon">📄</div>
+                  <div className="activity-content">
+                    <h4>Uploads</h4>
+                    <span className="activity-count">{contributions.uploads.length}</span>
+                  </div>
+                </div>
+                <div className="activity-item">
+                  <div className="activity-icon">💬</div>
+                  <div className="activity-content">
+                    <h4>Comments</h4>
+                    <span className="activity-count">{contributions.comments.length}</span>
+                  </div>
+                </div>
+                <div className="activity-item">
+                  <div className="activity-icon">⭐</div>
+                  <div className="activity-content">
+                    <h4>Reviews</h4>
+                    <span className="activity-count">{contributions.reviews.length}</span>
+                  </div>
+                </div>
+                <div className="activity-item">
+                  <div className="activity-icon">🔖</div>
+                  <div className="activity-content">
+                    <h4>Saved</h4>
+                    <span className="activity-count">{contributions.saved.length}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="section-divider">
+                <h4>Topics Followed</h4>
+                <div className="tag-list">
+                  {contributions.topicsFollowed.map((topic, idx) => (
+                    <span key={idx} className="tag">{topic}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="section-divider">
+                <h4>Badges & Achievements</h4>
+                <div className="badge-list">
+                  {contributions.badges.length > 0 ? (
+                    contributions.badges.map((badge, idx) => (
+                      <span key={idx} className="badge">{badge}</span>
                     ))
-                  : <span style={{ color: "#64748b" }}>None</span>}
-              </li>
-              <li>
-                <span style={infoLabel}>Subscribed Topics:</span> {explorerInfo.subscribedTopics.join(", ")}
-              </li>
-            </ul>
+                  ) : (
+                    <span className="no-badges">No badges yet</span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-
-        {/* Contributions & Activity */}
-        <div style={gradientCard}>
-          <div style={sectionTitle}>Contributions & Activity</div>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            <li>
-              <span style={infoLabel}>Uploaded Case Studies/Documents:</span>
-              {contributions.uploads.length > 0
-                ? contributions.uploads.map((u, idx) => (
-                    <span key={idx} style={{ color: "#bae6fd" }}>
-                      {u}
-                      {idx < contributions.uploads.length - 1 ? ", " : ""}
-                    </span>
-                  ))
-                : <span style={{ color: "#64748b" }}>None</span>}
-            </li>
-            <li>
-              <span style={infoLabel}>Comments/Discussions:</span>
-              {contributions.comments.length > 0
-                ? contributions.comments.map((c, idx) => (
-                    <span key={idx} style={{ color: "#bae6fd" }}>
-                      {c}
-                      {idx < contributions.comments.length - 1 ? ", " : ""}
-                    </span>
-                  ))
-                : <span style={{ color: "#64748b" }}>None</span>}
-            </li>
-            <li>
-              <span style={infoLabel}>Peer Reviews Given:</span>
-              {contributions.reviews.length > 0
-                ? contributions.reviews.map((r, idx) => (
-                    <span key={idx} style={{ color: "#bae6fd" }}>
-                      {r}
-                      {idx < contributions.reviews.length - 1 ? ", " : ""}
-                    </span>
-                  ))
-                : <span style={{ color: "#64748b" }}>None</span>}
-            </li>
-            <li>
-              <span style={infoLabel}>Saved/Bookmarked Content:</span>
-              {contributions.saved.length > 0
-                ? contributions.saved.map((s, idx) => (
-                    <span key={idx} style={{ color: "#bae6fd" }}>
-                      {s}
-                      {idx < contributions.saved.length - 1 ? ", " : ""}
-                    </span>
-                  ))
-                : <span style={{ color: "#64748b" }}>None</span>}
-            </li>
-            <li>
-              <span style={infoLabel}>Topics Followed:</span> {contributions.topicsFollowed.join(", ")}
-            </li>
-            <li>
-              <span style={infoLabel}>Badges/Achievements:</span>
-              {contributions.badges.length > 0
-                ? contributions.badges.map((b, idx) => (
-                    <span key={idx} style={badgeStyle}>
-                      {b}
-                    </span>
-                  ))
-                : <span style={{ color: "#64748b" }}>None</span>}
-            </li>
-          </ul>
         </div>
       </div>
-      {/* Spinner animation keyframes */}
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg);}
-            100% { transform: rotate(360deg);}
-          }
-        `}
-      </style>
     </div>
   );
 }

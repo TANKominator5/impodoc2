@@ -28,7 +28,7 @@ const Navbar = () => {
         }}
       >
         <Link
-          to="/"
+          to="/login"
           className="logo"
           style={{
             fontWeight: 900,
@@ -57,23 +57,6 @@ const Navbar = () => {
             padding: 0,
           }}
         >
-          <li>
-            <Link
-              to="/"
-              style={{
-                color: "#222",
-                fontWeight: 500,
-                fontSize: "1.08rem",
-                textDecoration: "none",
-                padding: "0.3em 0.7em",
-                borderRadius: "7px",
-                transition: "background 0.18s, color 0.18s",
-              }}
-              className="nav-link"
-            >
-              Home
-            </Link>
-          </li>
           <li>
             <Link
               to="/login"

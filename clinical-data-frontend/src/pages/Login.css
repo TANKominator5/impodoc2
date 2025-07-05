@@ -1,0 +1,64 @@
+/* Login.css */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #0f172a 60%, #0ea5e9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.login-card {
+  background: linear-gradient(135deg, #1e293b 60%, #0ea5e9 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 32px 0 rgba(14,165,233,0.10);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  color: #f1f5f9;
+  max-width: 500px;
+  text-align: center;
+}
+
+.login-button {
+  background: linear-gradient(90deg, #6366f1 0%, #0ea5e9 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.85rem 2.2rem;
+  border: none;
+  border-radius: 2rem;
+  box-shadow: 0 4px 24px 0 rgba(80,80,120,0.10);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  margin-top: 1rem;
+}
+
+.login-button:hover {
+  transform: scale(1.04);
+}
+
+.privacy-notice {
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid #0ea5e9;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #bae6fd;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.download-link {
+  margin-top: 2rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.download-link a {
+  color: #0ea5e9;
+  text-decoration: none;
+  margin-left: 0.5rem;
+}
+
+.download-link a:hover {
+  text-decoration: underline;
+} 

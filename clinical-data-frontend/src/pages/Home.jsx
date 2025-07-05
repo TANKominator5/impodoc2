@@ -1,8 +1,11 @@
 // src/pages/Home.jsx
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 export default function Home() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const handleMouseMove = (e) => {
       const root = document.documentElement;
@@ -14,6 +17,10 @@ export default function Home() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  const handleLoginClick = () => {
+    navigate("/login");
+  };
 
   return (
     <div className="home-wrapper" style={{
@@ -83,35 +90,25 @@ export default function Home() {
           gap: '1.2rem',
           marginTop: '1.5rem'
         }}>
-          <button className="cta-button" style={{
-            background: 'linear-gradient(90deg, #6366f1 0%, #0ea5e9 100%)',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: '1.1rem',
-            padding: '0.85rem 2.2rem',
-            border: 'none',
-            borderRadius: '2rem',
-            boxShadow: '0 4px 24px 0 rgba(80,80,120,0.10)',
-            cursor: 'pointer',
-            transition: 'transform 0.12s, box-shadow 0.12s'
-          }}
-          onMouseOver={e => {e.currentTarget.style.transform='scale(1.04)';}}
-          onMouseOut={e => {e.currentTarget.style.transform='scale(1)';}}
-          >Get Started</button>
-          <button style={{
-            background: 'rgba(99,102,241,0.08)',
-            color: '#6366f1',
-            fontWeight: 600,
-            fontSize: '1.1rem',
-            padding: '0.85rem 2.2rem',
-            border: '1.5px solid #6366f1',
-            borderRadius: '2rem',
-            cursor: 'pointer',
-            transition: 'background 0.12s, color 0.12s'
-          }}
-          onMouseOver={e => {e.currentTarget.style.background='#6366f1';e.currentTarget.style.color='#fff';}}
-          onMouseOut={e => {e.currentTarget.style.background='rgba(99,102,241,0.08)';e.currentTarget.style.color='#6366f1';}}
-          >Learn More</button>
+          <button 
+            onClick={handleLoginClick}
+            style={{
+              background: 'linear-gradient(90deg, #6366f1 0%, #0ea5e9 100%)',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              padding: '0.85rem 2.2rem',
+              border: 'none',
+              borderRadius: '2rem',
+              boxShadow: '0 4px 24px 0 rgba(80,80,120,0.10)',
+              cursor: 'pointer',
+              transition: 'transform 0.12s, box-shadow 0.12s'
+            }}
+            onMouseOver={e => {e.currentTarget.style.transform='scale(1.04)';}}
+            onMouseOut={e => {e.currentTarget.style.transform='scale(1)';}}
+          >
+            Login with Petra Wallet
+          </button>
         </div>
       </section>
 
@@ -275,21 +272,7 @@ export default function Home() {
           marginBottom: '2rem',
           color: 'rgba(255,255,255,0.93)'
         }}>Be part of a collaborative effort to redefine rare disease diagnosis and treatment.</p>
-        <button className="cta-button" style={{
-          background: '#fff',
-          color: '#6366f1',
-          fontWeight: 700,
-          fontSize: '1.1rem',
-          padding: '0.85rem 2.2rem',
-          border: 'none',
-          borderRadius: '2rem',
-          boxShadow: '0 4px 24px 0 rgba(80,80,120,0.10)',
-          cursor: 'pointer',
-          transition: 'background 0.12s, color 0.12s'
-        }}
-        onMouseOver={e => {e.currentTarget.style.background='#6366f1';e.currentTarget.style.color='#fff';}}
-        onMouseOut={e => {e.currentTarget.style.background='#fff';e.currentTarget.style.color='#6366f1';}}
-        >Get Started</button>
+
       </section>
 
       {/* Footer */}

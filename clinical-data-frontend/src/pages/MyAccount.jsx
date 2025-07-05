@@ -210,10 +210,10 @@ export default function MyAccount() {
             Please connect your Petra wallet to continue to your account setup.
           </p>
           <button 
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             style={button}
           >
-            Go to Home
+            Go to Login
           </button>
         </div>
       </div>
