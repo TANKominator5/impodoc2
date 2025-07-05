@@ -1,0 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap");
+
+.private-navbar {
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: rgba(20, 0, 0, 0.95);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255, 0, 0, 0.15);
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.left-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.private-logo {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ff4d4d;
+  text-shadow: 1px 1px 6px rgba(255, 0, 0, 0.4);
+  letter-spacing: 1px;
+}

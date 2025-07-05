@@ -1,0 +1,143 @@
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .modal-content {
+    background-color: #1a1a1a;
+    padding: 2rem;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .modal-content h2 {
+    margin-bottom: 1.5rem;
+    font-family: "Inter", sans-serif;
+    font-size: 1.5rem;
+    color: #ff4d4d;
+  }
+  
+  .wallet-connect-btn {
+    background: linear-gradient(145deg, #ff1e1e, #e50914);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 0.9rem 2rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(255, 0, 0, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .wallet-connect-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.6);
+  }
+  
+  .close-btn {
+    margin-top: 1.5rem;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #b0c4de;
+    background-color: #20232a;
+    border: 1px solid #3b3f47;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: "Inter", sans-serif;
+  }
+  
+  .close-btn:hover {
+    background-color: #2e323b;
+    color: #ffffff;
+    border-color: #5c6270;
+  }
+  
+  .divider {
+    margin: 2rem 0 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .divider::before,
+  .divider::after {
+    content: "";
+    height: 1px;
+    width: 40%;
+    background: #444;
+    position: absolute;
+    top: 50%;
+  }
+  .divider::before {
+    left: 0;
+  }
+  .divider::after {
+    right: 0;
+  }
+  
+  /* Google Button */
+  .google-connect-btn {
+    display: inline-flex; /* ✅ inline-flex allows centering via text-align or margin */
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background-color: #ffffff;
+    color: #333;
+    font-weight: 600;
+    padding: 0.7rem 1.4rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0 auto;           /* ✅ center horizontally */
+  }
+  
+  
+  .google-connect-btn:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .google-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .wallet-connect-btn {
+    background: linear-gradient(145deg, #ff1e1e, #e50914);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 1.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(255, 0, 0, 0.4);
+    transition: all 0.3s ease;
+  }
+  
+  .wallet-connect-btn:hover {
+    background: #ff4d4d;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 0, 0, 0.5);
+  }
+  
