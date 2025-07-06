@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { PetraWallet } from "petra-plugin-wallet-adapter";
+import { AuthProvider } from "./context/AuthContext"; // ✅ IMPORT THE AUTH PROVIDER
 
 const wallets = [new PetraWallet()];
 
@@ -13,7 +14,9 @@ root.render(
   <React.StrictMode>
     <AptosWalletAdapterProvider plugins={wallets} autoConnect={false}>
       <BrowserRouter>
-        <App />
+        <AuthProvider> {/* ✅ WRAP APP WITH THE PROVIDER */}
+          <App />
+        </AuthProvider>
       </BrowserRouter>
     </AptosWalletAdapterProvider>
   </React.StrictMode>
