@@ -1,10 +1,12 @@
 import { RewardSystem, REWARD_AMOUNTS, SOURCE_ADDRESS } from '../aptos/contract';
 import { doc, updateDoc, getDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import { AptosClient, AptosAccount, TxnBuilderTypes, BCS } from "aptos";
 
 export class RewardService {
   constructor() {
     this.rewardSystem = new RewardSystem();
+    this.client = new AptosClient("https://fullnode.testnet.aptoslabs.com");
   }
 
   // Reward patient when their prescription is verified
@@ -247,6 +249,98 @@ export class RewardService {
         failedRewards: 0
       };
     }
+  }
+
+  // Send 0.1 APT reward to patient when doctor approves their data
+  async sendPatientReward(patientAddress, doctorAddress, amount = 0.1) {
+    try {
+      // This would typically use the admin's wallet to send rewards
+      // For now, we'll create a transaction structure
+      const payload = {
+        function: "0x1::coin::transfer",
+        type_arguments: ["0x1::aptos_coin::AptosCoin"],
+        arguments: [patientAddress, amount * 100000000] // Convert to octas (8 decimal places)
+      };
+
+      // In a real implementation, you would:
+      // 1. Use the admin's private key to sign the transaction
+      // 2. Submit the transaction to the blockchain
+      // 3. Wait for confirmation
+      
+      console.log("Reward transaction payload:", payload);
+      
+      // For now, return a mock success response
+      return {
+        success: true,
+        transactionHash: "mock_tx_hash_" + Date.now(),
+        message: `Successfully sent ${amount} APT to patient ${patientAddress}`
+      };
+    } catch (error) {
+      console.error("Error sending patient reward:", error);
+      throw error;
+    }
+  }
+
+  // Get reward history for a patient
+  async getPatientRewardHistory(patientAddress) {
+    try {
+      // This would query the blockchain for reward transactions
+      // For now, return mock data
+      return [
+        {
+          id: "reward_1",
+          amount: 0.1,
+          timestamp: new Date(),
+          transactionHash: "mock_tx_hash_1",
+          type: "patient_verification",
+          status: "completed"
+        }
+      ];
+    } catch (error) {
+      console.error("Error getting reward history:", error);
+      throw error;
+    }
+  }
+
+  // Get total rewards distributed
+  async getTotalRewardsDistributed() {
+    try {
+      // This would query the blockchain or database
+      // For now, return mock data
+      return {
+        total: 0.5,
+        count: 5,
+        lastUpdated: new Date()
+      };
+    } catch (error) {
+      console.error("Error getting total rewards:", error);
+      throw error;
+    }
+  }
+
+  // Validate wallet address
+  isValidAddress(address) {
+    try {
+      // Basic validation for Aptos address format
+      return /^0x[a-fA-F0-9]{64}$/.test(address);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Format APT amount for display
+  formatAPTAmount(amount) {
+    return `${amount.toFixed(2)} APT`;
+  }
+
+  // Convert APT to octas (smallest unit)
+  aptToOctas(apt) {
+    return Math.floor(apt * 100000000);
+  }
+
+  // Convert octas to APT
+  octasToApt(octas) {
+    return octas / 100000000;
   }
 }
 
