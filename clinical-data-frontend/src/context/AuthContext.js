@@ -36,12 +36,13 @@ export const AuthProvider = ({ children }) => {
           setIsFirstTimeUser(false);
         }
       } else {
-        // New user, create a profile for them
-        console.log("New user, creating profile...");
+        // New user, create a basic profile for them
+        console.log("New user, creating basic profile...");
         const newUser = {
           name: "Anonymous User", // A default name
           createdAt: serverTimestamp(),
           isFirstTime: true,
+          walletConnected: true,
           // You can add more default fields here
         };
         await setDoc(userRef, newUser);
