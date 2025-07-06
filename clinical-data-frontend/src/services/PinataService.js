@@ -1,7 +1,10 @@
 class PinataService {
   constructor() {
-    this.apiKey = 'a7dab9f0b944f76ce673';
-    this.baseUrl = 'https://uploads.pinata.cloud/v3/files';
+    // 🚨 IMPORTANT: Make sure this is your JWT key from Pinata
+    this.apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI3MDcyN2Y4NC1jYTNhLTQzYzEtODU5Yy1hNzUzOTlhZjhlMjciLCJlbWFpbCI6InNyaXpkNDQ5QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJhN2RhYjlmMGI5NDRmNzZjZTY3MyIsInNjb3BlZEtleVNlY3JldCI6ImZmYTJiMTY4ODJiZGJjY2MyNTBmNTQyYWE4NmE4MjQyODhlYzZlZDRkMDg1NWY0M2FkNzc4YTE5NjBmNzhhYzAiLCJleHAiOjE3ODMyODUyODR9.tfUN2vVSViYazd76ZoakRvITOvrPBBh21p11pfxSzJM'; 
+    
+    // ✅ CORRECTED: Use the standard and correct API endpoint for pinning files
+    this.baseUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
   }
 
   async uploadFile(file, metadata = {}) {
@@ -17,93 +20,78 @@ class PinataService {
 
       console.log('Starting Pinata upload for file:', file.name, 'Size:', file.size);
 
+      // ✅ CORRECTED: The modern Pinata API expects a FormData object 
+      // with 'file' and 'pinataOptions'/'pinataMetadata'
       const form = new FormData();
-      form.append("network", "private");
-      form.append("name", file.name);
-      form.append("group_id", "clinical-data");
-      
-      // Add metadata as keyvalues
-      const keyvalues = {
-        uploadedAt: new Date().toISOString(),
-        fileType: file.type,
-        fileSize: file.size,
-        ...metadata
-      };
-      form.append("keyvalues", JSON.stringify(keyvalues));
-      
-      // Add the file
-      form.append("file", file);
+      form.append('file', file, file.name);
 
+      // Add metadata
+      const pinataMetadata = JSON.stringify({
+        name: file.name,
+        keyvalues: {
+          uploadedAt: new Date().toISOString(),
+          fileType: file.type,
+          fileSize: file.size,
+          ...metadata // Add any other custom metadata passed in
+        }
+      });
+      form.append('pinataMetadata', pinataMetadata);
+
+      // Add options (e.g., CID version)
+      const pinataOptions = JSON.stringify({
+        cidVersion: 0,
+      });
+      form.append('pinataOptions', pinataOptions);
+
+      // ✅ CORRECTED: The fetch request options remain largely the same,
+      // but we are now sending to the correct URL.
       const options = {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`
-        }
+        },
+        body: form,
       };
 
-      // Add timeout to prevent stuck uploads
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
-
-      try {
-        console.log('Sending request to Pinata...');
-        const response = await fetch(this.baseUrl, {
-          ...options,
-          body: form,
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        console.log('Pinata response status:', response.status);
-        
-        if (!response.ok) {
-          let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          try {
-            const errorData = await response.json();
-            console.log('Pinata error response:', errorData);
-            errorMessage = errorData.message || errorData.error || errorMessage;
-          } catch (e) {
-            console.log('Could not parse error response as JSON');
-          }
-          throw new Error(`Pinata upload failed: ${errorMessage}`);
+      console.log('Sending request to Pinata...');
+      const response = await fetch(this.baseUrl, options);
+      
+      if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          console.error('Pinata error response:', errorData);
+          errorMessage = errorData.error?.details || errorData.error?.reason || errorMessage;
+        } catch (e) {
+          console.error('Could not parse error response as JSON');
         }
-
-        const result = await response.json();
-        console.log('Pinata success response:', result);
-        
-        if (!result.IpfsHash) {
-          throw new Error('No CID returned from Pinata');
-        }
-
-        return {
-          cid: result.IpfsHash,
-          name: result.Name,
-          size: result.Size,
-          timestamp: result.Timestamp,
-          url: `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`
-        };
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-        console.error('Fetch error details:', fetchError);
-        
-        if (fetchError.name === 'AbortError') {
-          throw new Error('Upload timeout - please check your internet connection and try again');
-        }
-        
-        // Check for network errors
-        if (fetchError.message.includes('Failed to fetch') || fetchError.message.includes('NetworkError')) {
-          throw new Error('Network error - please check your internet connection and try again');
-        }
-        
-        throw fetchError;
+        throw new Error(`Pinata upload failed: ${errorMessage}`);
       }
+
+      const result = await response.json();
+      console.log('Pinata success response:', result);
+      
+      if (!result.IpfsHash) {
+        throw new Error('No CID (IpfsHash) returned from Pinata');
+      }
+
+      // Return the data in the format the rest of your app expects
+      return {
+        cid: result.IpfsHash,
+        name: file.name,
+        size: result.PinSize,
+        timestamp: result.Timestamp,
+        url: `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`
+      };
+
     } catch (error) {
       console.error('Pinata upload error:', error);
+      // This final error message is what your user will see in the alert
       throw new Error(`Failed to upload to Pinata: ${error.message}`);
     }
   }
 
+  // NOTE: This function does not need any changes as it relies on the corrected uploadFile method above.
   async uploadMultipleFiles(files, metadata = {}) {
     const results = {};
     
@@ -126,19 +114,6 @@ class PinataService {
     
     return results;
   }
-
-  // Simple test method
-  async testConnection() {
-    try {
-      const testBlob = new Blob(['Test file content'], { type: 'text/plain' });
-      const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-      
-      const result = await this.uploadFile(testFile, { test: true });
-      return { success: true, result };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
 }
 
-export default PinataService; 
+export default PinataService;
