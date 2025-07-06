@@ -6,7 +6,7 @@ import "./Dashboard.css";
 import defaultPfp from "../assets/default-pfp.png";
 import { useAuth } from "../context/AuthContext";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getCountFromServer } from "firebase/firestore";
 import { db } from "../firebase"; // Make sure you have this exported from your firebase.js
 import { useNavigate } from "react-router-dom";
 
@@ -58,6 +58,7 @@ export default function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [fetching, setFetching] = useState(true);
   const navigate = useNavigate();
+  const [uploadsCount, setUploadsCount] = useState(0);
 
   // Redirect first-time users to My Account page
   useEffect(() => {
@@ -91,6 +92,19 @@ export default function Dashboard() {
     if (currentUser) fetchUserData();
     else setFetching(false);
   }, [currentUser]);
+
+  useEffect(() => {
+    const fetchUploadsCount = async () => {
+      try {
+        const coll = collection(db, "patients");
+        const snapshot = await getCountFromServer(coll);
+        setUploadsCount(snapshot.data().count);
+      } catch (err) {
+        setUploadsCount(0);
+      }
+    };
+    fetchUploadsCount();
+  }, []);
 
   if (loading || fetching) {
     return (
@@ -235,19 +249,49 @@ export default function Dashboard() {
         {/* Role-based Actions */}
         <div className="role-actions">
           {role === "Patient" && (
-            <div className="action-card">
-              <div className="action-icon">📤</div>
-              <div className="action-content">
-                <h3>Upload Patient Data</h3>
-                <p>Share your medical information for research and analysis</p>
-                <button 
-                  className="action-btn"
-                  onClick={() => navigate("/upload-patient-data")}
-                >
-                  Upload Data
-                </button>
+            <>
+              <div className="action-card">
+                <div className="action-icon">📤</div>
+                <div className="action-content">
+                  <h3>Upload Patient Data</h3>
+                  <p>Share your medical information for research and analysis</p>
+                  <button 
+                    className="action-btn"
+                    onClick={() => navigate("/upload-patient-data")}
+                  >
+                    Upload Data
+                  </button>
+                </div>
               </div>
-            </div>
+              
+              <div className="action-card">
+                <div className="action-icon">📋</div>
+                <div className="action-content">
+                  <h3>My Uploads</h3>
+                  <p>View and manage your uploaded medical documents</p>
+                  <button 
+                    className="action-btn"
+                    onClick={() => navigate("/my-uploads")}
+                  >
+                    View Uploads
+                  </button>
+                </div>
+              </div>
+
+              <div className="action-card">
+                <div className="action-icon">🔐</div>
+                <div className="action-content">
+                  <h3>Access Control</h3>
+                  <p>Manage which institutions can access your data</p>
+                  <button 
+                    className="action-btn"
+                    onClick={() => navigate("/access-control")}
+                  >
+                    Manage Access
+                  </button>
+                </div>
+              </div>
+            </>
           )}
 
           {(role === "Doctor" || role === "Researcher") && (
@@ -524,7 +568,7 @@ export default function Dashboard() {
                   <div className="activity-icon">📄</div>
                   <div className="activity-content">
                     <h4>Uploads</h4>
-                    <span className="activity-count">{contributions.uploads.length}</span>
+                    <span className="activity-count">{uploadsCount}</span>
                   </div>
                 </div>
                 <div className="activity-item">

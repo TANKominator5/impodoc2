@@ -9,6 +9,8 @@ import PatientDataUpload from "./pages/PatientDataUpload";
 import VerificationForm from "./pages/VerificationForm";
 import PatientDataView from "./pages/PatientDataView";
 import ResearchSubmission from "./pages/ResearchSubmission";
+import MyUploads from "./pages/MyUploads";
+import AccessControl from "./components/AccessControl";
 
 const AppRoutes = () => (
   <Routes>
@@ -22,6 +24,8 @@ const AppRoutes = () => (
     <Route path="/verification" element={<VerificationForm />} />
     <Route path="/patient-data" element={<PatientDataView />} />
     <Route path="/research-submission" element={<ResearchSubmission />} />
+    <Route path="/my-uploads" element={<MyUploads />} />
+    <Route path="/access-control" element={<AccessControl />} />
   </Routes>
 );
 
