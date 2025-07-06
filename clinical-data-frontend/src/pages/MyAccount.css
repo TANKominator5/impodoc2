@@ -1,0 +1,191 @@
+.my-account-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #0f172a 60%, #0ea5e9 100%);
+  padding: 2rem;
+}
+
+.my-account-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.welcome-card {
+  background: linear-gradient(135deg, #1e293b 60%, #0ea5e9 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 32px 0 rgba(14,165,233,0.10);
+  padding: 2rem;
+  margin-bottom: 3rem;
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.welcome-title {
+  color: #f1f5f9;
+  font-weight: 800;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.welcome-subtitle {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.privacy-notice {
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid #0ea5e9;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #bae6fd;
+  font-size: 0.9rem;
+}
+
+.form-card {
+  background: linear-gradient(135deg, #1e293b 60%, #0ea5e9 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 32px 0 rgba(14,165,233,0.10);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  color: #f1f5f9;
+}
+
+.section-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.1rem;
+  color: #38bdf8;
+  letter-spacing: 0.01em;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #334155;
+  border-radius: 0.5rem;
+  background-color: #1e293b;
+  color: #f1f5f9;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+}
+
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #334155;
+  border-radius: 0.5rem;
+  background-color: #1e293b;
+  color: #f1f5f9;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #0ea5e9;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #334155;
+  border-radius: 0.5rem;
+  background-color: #1e293b;
+  color: #f1f5f9;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #0ea5e9;
+}
+
+.submit-button {
+  background: linear-gradient(90deg, #6366f1 0%, #0ea5e9 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.85rem 2.2rem;
+  border: none;
+  border-radius: 2rem;
+  box-shadow: 0 4px 24px 0 rgba(80,80,120,0.10);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  margin-top: 1rem;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 6px 32px 0 rgba(80,80,120,0.15);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.wallet-required {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #0f172a 60%, #0ea5e9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.wallet-card {
+  background: linear-gradient(135deg, #1e293b 60%, #0ea5e9 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 32px 0 rgba(14,165,233,0.10);
+  padding: 2rem;
+  max-width: 500px;
+  text-align: center;
+  color: #f1f5f9;
+}
+
+.wallet-title {
+  color: #f43f5e;
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.wallet-message {
+  color: #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .my-account-wrapper {
+    padding: 1rem;
+  }
+  
+  .welcome-title {
+    font-size: 2rem;
+  }
+  
+  .form-card {
+    padding: 1.5rem;
+  }
+} 

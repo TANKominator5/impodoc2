@@ -10,6 +10,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
 
   // This function will be called when a user connects their wallet
   const handleUserConnect = async (account) => {
@@ -25,17 +26,27 @@ export const AuthProvider = ({ children }) => {
       if (userSnap.exists()) {
         // User exists, fetch their data
         console.log("Existing user found:", userSnap.data());
-        setCurrentUser({ address: userAddress, ...userSnap.data() });
+        const userData = userSnap.data();
+        setCurrentUser({ address: userAddress, ...userData });
+        
+        // Check if this is a first-time user (has default name or no name)
+        if (!userData.name || userData.name === "Anonymous User") {
+          setIsFirstTimeUser(true);
+        } else {
+          setIsFirstTimeUser(false);
+        }
       } else {
         // New user, create a profile for them
         console.log("New user, creating profile...");
         const newUser = {
           name: "Anonymous User", // A default name
           createdAt: serverTimestamp(),
+          isFirstTime: true,
           // You can add more default fields here
         };
         await setDoc(userRef, newUser);
         setCurrentUser({ address: userAddress, ...newUser });
+        setIsFirstTimeUser(true);
       }
     } catch (error) {
       console.error("Error handling user connection:", error);
@@ -46,12 +57,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setCurrentUser(null);
+    setIsFirstTimeUser(false);
     // We can add wallet disconnect logic here if needed
   };
 
   const value = {
     currentUser,
     loading,
+    isFirstTimeUser,
     handleUserConnect,
     logout,
   };
