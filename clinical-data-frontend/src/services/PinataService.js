@@ -1,7 +1,11 @@
 class PinataService {
   constructor() {
     // 🚨 IMPORTANT: Make sure this is your JWT key from Pinata
-    this.apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI3MDcyN2Y4NC1jYTNhLTQzYzEtODU5Yy1hNzUzOTlhZjhlMjciLCJlbWFpbCI6InNyaXpkNDQ5QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJhN2RhYjlmMGI5NDRmNzZjZTY3MyIsInNjb3BlZEtleVNlY3JldCI6ImZmYTJiMTY4ODJiZGJjY2MyNTBmNTQyYWE4NmE4MjQyODhlYzZlZDRkMDg1NWY0M2FkNzc4YTE5NjBmNzhhYzAiLCJleHAiOjE3ODMyODUyODR9.tfUN2vVSViYazd76ZoakRvITOvrPBBh21p11pfxSzJM'; 
+    this.apiKey = process.env.REACT_APP_PINATA_JWT_TOKEN;
+    
+    if (!this.apiKey) {
+      throw new Error('Pinata JWT token not found. Please set REACT_APP_PINATA_JWT_TOKEN in your .env file');
+    }
     
     // ✅ CORRECTED: Use the standard and correct API endpoint for pinning files
     this.baseUrl = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
