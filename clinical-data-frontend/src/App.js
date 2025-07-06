@@ -13,7 +13,7 @@ function App() {
   const location = useLocation();
   const { currentUser } = useAuth();
   const { connected } = useWallet();
-
+  
   // Check if user is authenticated
   const isAuthenticated = connected && currentUser;
   
@@ -23,7 +23,8 @@ function App() {
                               location.pathname.startsWith("/verification") ||
                               location.pathname.startsWith("/patient-data") ||
                               location.pathname.startsWith("/research-submission") ||
-                              location.pathname.startsWith("/my-account");
+                              location.pathname.startsWith("/my-account") ||
+                              location.pathname.startsWith("/admin");
 
   useEffect(() => {
     const handleMouseMove = (e) => {

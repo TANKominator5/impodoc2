@@ -1,298 +1,223 @@
-// src/components/AdminPanel.jsx
 import React, { useState, useEffect } from 'react';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import ClinicalDataService from '../services/ClinicalDataService';
-import { RewardService } from '../services/RewardService';
+import VerificationRequests from './VerificationRequests';
+
 import './AdminPanel.css';
 
 const AdminPanel = () => {
-  const { account, signAndSubmitTransaction } = useWallet();
-  const [patients, setPatients] = useState([]);
-  const [newPatientAddress, setNewPatientAddress] = useState('');
-  const [newPatientDataHash, setNewPatientDataHash] = useState('');
-  const [rewardRecipient, setRewardRecipient] = useState('');
-  const [rewardAmount, setRewardAmount] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState('');
-  const [activeTab, setActiveTab] = useState('patients');
+  const [isConnected, setIsConnected] = useState(false);
+  const [account, setAccount] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const clinicalDataService = new ClinicalDataService();
-  const rewardService = new RewardService();
+  // ✅ KEEP YOUR ADMIN WALLET ADDRESSES HERE
+  const ADMIN_WALLET_ADDRESSES = [
+    '0x7fbf95bb2c9bfd7b7e0e322c7a37ed7ed62e3ff525741be5262d86d2d4469341', // Replace with your wallet address
+    // Add more admin addresses as needed
+  ];
 
+  // Check if Petra wallet is available
+  const isPetraAvailable = () => {
+    return typeof window !== 'undefined' && window.aptos;
+  };
+
+  // Check connection status on component mount
   useEffect(() => {
-    if (account?.address) {
-      loadPatients();
-    }
-  }, [account?.address]);
+    checkConnectionStatus();
+  }, []);
 
-  const loadPatients = async () => {
-    try {
-      const patientsData = await clinicalDataService.getAllPatients();
-      setPatients(patientsData);
-    } catch (error) {
-      console.error('Error loading patients:', error);
-    }
-  };
-
-  const handleAddPatient = async () => {
-    if (!newPatientAddress.trim() || !newPatientDataHash.trim()) {
-      setMessage('Please fill in all fields');
-      setMessageType('error');
+  // Check if wallet is already connected
+  const checkConnectionStatus = async () => {
+    if (!isPetraAvailable()) {
+      console.log('Petra wallet not available');
       return;
     }
 
-    setLoading(true);
     try {
-      const mockSigner = {
-        accountAddress: account.address,
-        signTransaction: async (transaction) => {
-          return await signAndSubmitTransaction(transaction);
-        }
-      };
+      const connected = await window.aptos.isConnected();
+      if (connected) {
+        const account = await window.aptos.account();
+        setAccount(account);
+        setIsConnected(true);
+        console.log('Wallet already connected:', account);
+      }
+    } catch (error) {
+      console.error('Error checking connection status:', error);
+    }
+  };
 
-      const result = await clinicalDataService.addPatient(mockSigner, newPatientAddress, newPatientDataHash);
+  const handleConnect = async () => {
+    if (!isPetraAvailable()) {
+      alert('Petra wallet is not installed. Please install the Petra wallet extension first.');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      console.log('Attempting to connect wallet...');
       
-      if (result.success) {
-        setMessage(`Patient ${newPatientAddress} added successfully`);
-        setMessageType('success');
-        setNewPatientAddress('');
-        setNewPatientDataHash('');
-        loadPatients();
-      } else {
-        setMessage(`Error: ${result.error}`);
-        setMessageType('error');
-      }
-    } catch (error) {
-      setMessage(`Error: ${error.message}`);
-      setMessageType('error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRewardContribution = async () => {
-    if (!rewardRecipient.trim() || !rewardAmount.trim()) {
-      setMessage('Please fill in all fields');
-      setMessageType('error');
-      return;
-    }
-
-    const amount = parseInt(rewardAmount);
-    if (isNaN(amount) || amount <= 0) {
-      setMessage('Please enter a valid amount');
-      setMessageType('error');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const mockSigner = {
-        accountAddress: account.address,
-        signTransaction: async (transaction) => {
-          return await signAndSubmitTransaction(transaction);
-        }
-      };
-
-      const result = await clinicalDataService.rewardContribution(mockSigner, rewardRecipient, amount);
+      // Connect to the wallet using window.aptos.connect()
+      await window.aptos.connect();
       
-      if (result.success) {
-        setMessage(`Rewarded ${amount} tokens to ${rewardRecipient}`);
-        setMessageType('success');
-        setRewardRecipient('');
-        setRewardAmount('');
-      } else {
-        setMessage(`Error: ${result.error}`);
-        setMessageType('error');
-      }
+      // Get account information
+      const account = await window.aptos.account();
+      
+      console.log('Wallet connected successfully:', account);
+      
+      setAccount(account);
+      setIsConnected(true);
+      
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
-      setMessageType('error');
+      console.error('Wallet connection failed:', error);
+      alert('Failed to connect wallet. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleGetTokenBalance = async (address) => {
+  const handleDisconnect = async () => {
+    if (!isPetraAvailable()) {
+      return;
+    }
+
     try {
-      const result = await clinicalDataService.getTokenBalance(address);
-      if (result.success) {
-        setMessage(`Token balance for ${address}: ${result.balance}`);
-        setMessageType('success');
-      } else {
-        setMessage(`Error getting balance: ${result.error}`);
-        setMessageType('error');
-      }
+      await window.aptos.disconnect();
+      setAccount(null);
+      setIsConnected(false);
+      console.log('Wallet disconnected');
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
-      setMessageType('error');
+      console.error('Error disconnecting wallet:', error);
     }
   };
 
-  const formatTimestamp = (timestamp) => {
-    if (!timestamp) return 'N/A';
-    return new Date(timestamp.toDate()).toLocaleString();
+  // This logic remains the same: check if the connected account is an admin
+  const isAdmin = isConnected && account?.address && ADMIN_WALLET_ADDRESSES.includes(account.address);
+
+  const getFormattedAddress = () => {
+    if (!account?.address) return 'Unknown';
+    return `${account.address.slice(0, 6)}...${account.address.slice(-4)}`;
   };
 
-  if (!account?.address) {
-    return (
-      <div className="admin-panel-container">
-        <div className="admin-panel-card">
-          <h2>Admin Panel</h2>
-          <p>Please connect your wallet to access admin features.</p>
+  // Helper function to render the main content based on connection and admin status
+  const renderContent = () => {
+    // 1. If connected and the user is an admin
+    if (isAdmin) {
+      return (
+        <div className="admin-dashboard">
+          <div className="admin-welcome">
+            <div className="admin-avatar">
+              <span>👨‍💼</span>
+            </div>
+            <div className="admin-info">
+              <h2>Welcome, Administrator</h2>
+              <p>Manage verification requests and platform operations</p>
+              <div className="wallet-info">
+                <span className="wallet-label">Connected Wallet:</span>
+                <span className="wallet-address">{getFormattedAddress()}</span>
+              </div>
+            </div>
+            <button 
+              onClick={handleDisconnect} 
+              className="disconnect-btn"
+            >
+              <span>🔌</span>
+              Disconnect
+            </button>
+          </div>
+          
+          {/* Verification Requests Component */}
+          <div className="verification-section">
+            <div className="section-header">
+              <h3>🔍 Verification Management</h3>
+              <p>Review and manage doctor and researcher verification requests</p>
+            </div>
+            <VerificationRequests adminAddress={account.address} />
+          </div>
         </div>
+      );
+    }
+
+    // 2. If connected but the user is NOT an admin
+    if (isConnected) {
+      return (
+        <div className="unauthorized-section">
+          <div className="unauthorized-icon">
+            <span>🚫</span>
+          </div>
+          <h2>Access Denied</h2>
+          <p>This wallet is not authorized for admin access.</p>
+          <div className="wallet-info">
+            <span className="wallet-label">Connected Wallet:</span>
+            <span className="wallet-address">{getFormattedAddress()}</span>
+          </div>
+          <p className="contact-info">Please contact the system administrator to get admin privileges.</p>
+          <button 
+            onClick={handleDisconnect} 
+            className="disconnect-btn"
+          >
+            <span>🔌</span>
+            Disconnect
+          </button>
+        </div>
+      );
+    }
+    
+    // 3. If not connected at all
+    return (
+      <div className="connect-section">
+        <div className="connect-icon">
+          <span>🔐</span>
+        </div>
+        <h2>Admin Access Required</h2>
+        <p>Connect your wallet to access the admin panel</p>
+        {!isPetraAvailable() ? (
+          <div className="wallet-install">
+            <p>Petra wallet is not installed</p>
+            <a 
+              href="https://petra.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="install-link"
+            >
+              <span>📥</span>
+              Install Petra Wallet
+            </a>
+          </div>
+        ) : (
+          <button 
+            onClick={handleConnect} 
+            className="connect-btn"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="loading-spinner"></span>
+                Connecting...
+              </>
+            ) : (
+              <>
+                <span>🔗</span>
+                Connect Petra Wallet
+              </>
+            )}
+          </button>
+        )}
       </div>
     );
-  }
+  };
 
   return (
     <div className="admin-panel-container">
       <div className="admin-panel-card">
-        <h2>Admin Panel</h2>
-        
-        {message && (
-          <div className={`message ${messageType}`}>
-            {message}
+        <div className="admin-panel-header">
+          <div className="header-content">
+            <h1>Admin Panel</h1>
+            <p>Secure platform administration</p>
           </div>
-        )}
-
-        <div className="tab-navigation">
-          <button 
-            className={`tab-btn ${activeTab === 'patients' ? 'active' : ''}`}
-            onClick={() => setActiveTab('patients')}
-          >
-            Patient Management
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'rewards' ? 'active' : ''}`}
-            onClick={() => setActiveTab('rewards')}
-          >
-            Reward System
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}
-            onClick={() => setActiveTab('logs')}
-          >
-            Access Logs
-          </button>
         </div>
-
-        {activeTab === 'patients' && (
-          <div className="tab-content">
-            <div className="add-patient-section">
-              <h3>Add New Patient</h3>
-              <div className="form-group">
-                <input
-                  type="text"
-                  placeholder="Patient Address"
-                  value={newPatientAddress}
-                  onChange={(e) => setNewPatientAddress(e.target.value)}
-                  disabled={loading}
-                />
-                <input
-                  type="text"
-                  placeholder="Data Hash"
-                  value={newPatientDataHash}
-                  onChange={(e) => setNewPatientDataHash(e.target.value)}
-                  disabled={loading}
-                />
-                <button 
-                  onClick={handleAddPatient}
-                  disabled={loading || !newPatientAddress.trim() || !newPatientDataHash.trim()}
-                  className="add-btn"
-                >
-                  {loading ? 'Adding...' : 'Add Patient'}
-                </button>
-              </div>
-            </div>
-
-            <div className="patients-list-section">
-              <h3>Registered Patients</h3>
-              <div className="patients-grid">
-                {patients.map((patient, index) => (
-                  <div key={index} className="patient-card">
-                    <div className="patient-header">
-                      <h4>Patient {index + 1}</h4>
-                      <button 
-                        onClick={() => handleGetTokenBalance(patient.address)}
-                        className="balance-btn"
-                      >
-                        Check Balance
-                      </button>
-                    </div>
-                    <div className="patient-details">
-                      <p><strong>Address:</strong> {patient.address}</p>
-                      <p><strong>Data Hash:</strong> {patient.dataHash}</p>
-                      <p><strong>Consented Institutions:</strong> {patient.consentedInstitutions?.length || 0}</p>
-                      <p><strong>Created:</strong> {formatTimestamp(patient.createdAt)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'rewards' && (
-          <div className="tab-content">
-            <div className="reward-section">
-              <h3>Reward Contributors</h3>
-              <div className="form-group">
-                <input
-                  type="text"
-                  placeholder="Recipient Address"
-                  value={rewardRecipient}
-                  onChange={(e) => setRewardRecipient(e.target.value)}
-                  disabled={loading}
-                />
-                <input
-                  type="number"
-                  placeholder="Token Amount"
-                  value={rewardAmount}
-                  onChange={(e) => setRewardAmount(e.target.value)}
-                  disabled={loading}
-                />
-                <button 
-                  onClick={handleRewardContribution}
-                  disabled={loading || !rewardRecipient.trim() || !rewardAmount.trim()}
-                  className="reward-btn"
-                >
-                  {loading ? 'Rewarding...' : 'Reward Contributor'}
-                </button>
-              </div>
-            </div>
-
-            <div className="reward-stats-section">
-              <h3>Reward Statistics</h3>
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <h4>Total Patients</h4>
-                  <p>{patients.length}</p>
-                </div>
-                <div className="stat-card">
-                  <h4>Total Rewards</h4>
-                  <p>Coming Soon</p>
-                </div>
-                <div className="stat-card">
-                  <h4>Active Contracts</h4>
-                  <p>1</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'logs' && (
-          <div className="tab-content">
-            <div className="logs-section">
-              <h3>System Access Logs</h3>
-              <div className="logs-container">
-                <p>Access logs will be displayed here. This feature tracks all access events across the system.</p>
-                {/* Logs will be populated here */}
-              </div>
-            </div>
-          </div>
-        )}
+        
+        <div className="admin-panel-content">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
