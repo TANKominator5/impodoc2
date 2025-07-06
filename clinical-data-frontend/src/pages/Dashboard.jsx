@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import PrivateNavbar from "../components/PrivateNavbar";
 import RewardInfo from "../components/RewardInfo";
+import PrescriptionValidation from "../components/PrescriptionValidation";
 import "./Dashboard.css";
 import defaultPfp from "../assets/default-pfp.png";
 import { useAuth } from "../context/AuthContext";
@@ -53,6 +54,7 @@ const badgeStyle = {
 
 export default function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showPrescriptionValidation, setShowPrescriptionValidation] = useState(false);
   const { currentUser, loading, isFirstTimeUser } = useAuth();
   const { connected } = useWallet();
   const [userData, setUserData] = useState(null);
@@ -339,6 +341,22 @@ export default function Dashboard() {
                       </button>
                     </div>
                   </div>
+
+                  {role === "Doctor" && (
+                    <div className="action-card">
+                      <div className="action-icon">✅</div>
+                      <div className="action-content">
+                        <h3>Validate Prescriptions</h3>
+                        <p>Review and validate patient prescriptions to reward them with 0.1 APT</p>
+                        <button 
+                          className="action-btn"
+                          onClick={() => setShowPrescriptionValidation(true)}
+                        >
+                          Review Prescriptions
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </>
@@ -618,6 +636,24 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Prescription Validation Modal */}
+        {showPrescriptionValidation && (
+          <div className="prescription-validation-modal">
+            <div className="modal-header">
+              <h2>Prescription Validation</h2>
+              <button 
+                className="close-modal-btn"
+                onClick={() => setShowPrescriptionValidation(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-content">
+              <PrescriptionValidation doctorAddress={currentUser?.uid || user?.address} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

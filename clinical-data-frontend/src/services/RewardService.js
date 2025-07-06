@@ -20,7 +20,8 @@ export class RewardService {
         prescriptionId: prescriptionId,
         timestamp: serverTimestamp(),
         status: 'pending', // pending, completed, failed
-        transactionHash: null
+        transactionHash: null,
+        verifiedBy: null // Will be set by the doctor
       };
 
       // Store reward record in Firebase
