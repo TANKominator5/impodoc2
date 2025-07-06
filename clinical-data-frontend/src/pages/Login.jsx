@@ -6,29 +6,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import './Login.css';
 
-const gradientCard = {
-  background: "linear-gradient(135deg, #1e293b 60%, #0ea5e9 100%)",
-  borderRadius: "1.2rem",
-  boxShadow: "0 4px 32px 0 rgba(14,165,233,0.10)",
-  padding: "2rem",
-  marginBottom: "2rem",
-  color: "#f1f5f9",
-};
-
-const button = {
-  background: "linear-gradient(90deg, #6366f1 0%, #0ea5e9 100%)",
-  color: "#fff",
-  fontWeight: 700,
-  fontSize: "1.1rem",
-  padding: "0.85rem 2.2rem",
-  border: "none",
-  borderRadius: "2rem",
-  boxShadow: "0 4px 24px 0 rgba(80,80,120,0.10)",
-  cursor: "pointer",
-  transition: "transform 0.12s, box-shadow 0.12s",
-  marginTop: "1rem",
-};
-
 export default function Login() {
   const { connect, account, connected, wallets } = useWallet();
   const { handleUserConnect } = useAuth();
@@ -86,71 +63,90 @@ export default function Login() {
   }, [connected, account, handleUserConnect, navigate]);
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      background: "linear-gradient(120deg, #0f172a 60%, #0ea5e9 100%)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "2rem"
-    }}>
-      <div style={{ ...gradientCard, maxWidth: 500, textAlign: "center" }}>
-        <h1 style={{ 
-          color: "#f1f5f9", 
-          fontWeight: 800, 
-          fontSize: "2.5rem",
-          marginBottom: "1rem"
-        }}>
-          Welcome to Impodoc
-        </h1>
-        <p style={{ 
-          color: "#94a3b8", 
-          fontSize: "1.1rem",
-          marginBottom: "2rem"
-        }}>
-          Connect your Petra wallet to access the platform
-        </p>
-        
-        <div style={{ 
-          background: "rgba(14, 165, 233, 0.1)", 
-          border: "1px solid #0ea5e9", 
-          borderRadius: "0.5rem", 
-          padding: "1rem",
-          color: "#bae6fd",
-          fontSize: "0.9rem",
-          marginBottom: "2rem"
-        }}>
-          <strong>🔒 Secure Authentication:</strong> Your wallet address is used for secure authentication. 
-          No personal information is required for login.
+    <div className="login-container">
+      <div className="login-background">
+        <div className="background-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+        </div>
+      </div>
+
+      <div className="login-content">
+        <div className="login-card glass-card">
+          <div className="login-header">
+            <div className="logo-section">
+              <div className="logo-icon">🔬</div>
+              <h1 className="login-title">
+                Welcome to <span className="brand-highlight">Impodoc</span>
+              </h1>
+            </div>
+            <p className="login-subtitle">
+              Connect your Petra wallet to access the future of medical research
+            </p>
+          </div>
+
+          <div className="login-features">
+            <div className="feature-item">
+              <span className="feature-icon">🔒</span>
+              <span className="feature-text">Secure Authentication</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">💰</span>
+              <span className="feature-text">Earn APT Rewards</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-icon">🌍</span>
+              <span className="feature-text">Global Impact</span>
+            </div>
+          </div>
+
+          <div className="security-notice">
+            <div className="notice-icon">🛡️</div>
+            <div className="notice-content">
+              <h4>Privacy First</h4>
+              <p>Your wallet address is used for secure authentication. No personal information is required for login.</p>
+            </div>
+          </div>
+
+          <button 
+            className="btn btn-primary btn-large login-btn"
+            onClick={handleLogin}
+          >
+            <span className="btn-icon">🔗</span>
+            Connect Petra Wallet
+          </button>
+
+          <div className="wallet-info">
+            <p className="wallet-text">
+              Don't have Petra Wallet? 
+              <a 
+                href="https://petra.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="wallet-link"
+              >
+                Download here
+              </a>
+            </p>
+          </div>
         </div>
 
-        <button 
-          onClick={handleLogin}
-          style={button}
-          onMouseOver={e => {e.currentTarget.style.transform='scale(1.04)';}}
-          onMouseOut={e => {e.currentTarget.style.transform='scale(1)';}}
-        >
-          Connect Petra Wallet
-        </button>
-        
-        <div style={{ 
-          marginTop: "2rem",
-          color: "#64748b",
-          fontSize: "0.9rem"
-        }}>
-          Don't have Petra Wallet? 
-          <a 
-            href="https://petra.app/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ 
-              color: "#0ea5e9", 
-              textDecoration: "none",
-              marginLeft: "0.5rem"
-            }}
-          >
-            Download here
-          </a>
+        <div className="login-footer">
+          <div className="footer-stats">
+            <div className="stat-item">
+              <span className="stat-number">10,000+</span>
+              <span className="stat-label">Cases Shared</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">500+</span>
+              <span className="stat-label">Verified Doctors</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">1000+</span>
+              <span className="stat-label">APT Rewards</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

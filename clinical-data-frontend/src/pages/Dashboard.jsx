@@ -10,6 +10,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { doc, getDoc, collection, getCountFromServer } from "firebase/firestore";
 import { db } from "../firebase"; // Make sure you have this exported from your firebase.js
 import { useNavigate } from "react-router-dom";
+import PatientDataService from "../services/PatientDataService";
 
 // Helper to truncate wallet addresses
 const truncateHex = (hex, length = 6) => {
@@ -98,9 +99,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUploadsCount = async () => {
       try {
-        const coll = collection(db, "patients");
-        const snapshot = await getCountFromServer(coll);
-        setUploadsCount(snapshot.data().count);
+        const stats = await PatientDataService.getPatientStats();
+        setUploadsCount(stats.total);
       } catch (err) {
         setUploadsCount(0);
       }
